@@ -1,0 +1,7 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#000000"/>
+  <path d="M90 330 Q90 160 256 160 Q422 160 422 330"
+        stroke="#FFCC00" stroke-width="40" fill="none" stroke-linecap="round"/>
+  <text x="256" y="350" font-size="160" font-weight="bold"
+        text-anchor="middle" fill="#FFCC00" font-family="Arial">TP</text>
+</svg>
