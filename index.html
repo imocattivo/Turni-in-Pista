@@ -345,10 +345,14 @@ function addRow(dateStr, time, desc, alertBefore) {
   if (!time) time = "";
   if (!desc) desc = "";
   if (!alertBefore) alertBefore = "7";
+  // Supporto caricamento da vecchi file salvati in formato gg/mm/aaaa
+  if (dateStr && dateStr.includes("/")) {
+    dateStr = parseDateITToISO(dateStr);
+  }
   var table = document.getElementById("table");
   var row = table.insertRow(-1);
   row.innerHTML =
-    '<td><input type="text" class="date" value="' + dateStr + '" placeholder="gg/mm/aaaa" oninput="saveData()"></td>' +
+    '<td><input type="date" class="date" value="' + dateStr + '" oninput="saveData()"></td>' +
     '<td><input type="time" class="time" value="' + time + '" oninput="saveData()"></td>' +
     '<td><input type="text" class="desc" value="' + desc + '" oninput="saveData()"></td>' +
     '<td>' + createAlertSelect(alertBefore) + '</td>' +
@@ -374,7 +378,7 @@ function saveData() {
   trs.forEach(function (row, index) {
     if (index === 0) return;
     rows.push({
-      date: row.querySelector(".date").value,
+      date: row.querySelector(".date").value,   // ISO yyyy-mm-dd
       time: row.querySelector(".time").value,
       desc: row.querySelector(".desc").value,
       alertBefore: row.querySelector(".alertBefore").value
@@ -396,14 +400,12 @@ function sortRows() {
   var table = document.getElementById("table");
   var rows = Array.from(table.rows).slice(1);
   rows.sort(function (a, b) {
-    const da = a.querySelector(".date").value;
-    const db = b.querySelector(".date").value;
-    const ta = a.querySelector(".time").value;
-    const tb = b.querySelector(".time").value;
-    const isoA = parseDateITToISO(da) || "9999-12-31";
-    const isoB = parseDateITToISO(db) || "9999-12-31";
-    const keyA = isoA + " " + (ta || "99:99");
-    const keyB = isoB + " " + (tb || "99:99");
+    const da = a.querySelector(".date").value || "9999-12-31";
+    const db = b.querySelector(".date").value || "9999-12-31";
+    const ta = a.querySelector(".time").value || "99:99";
+    const tb = b.querySelector(".time").value || "99:99";
+    const keyA = da + " " + ta;
+    const keyB = db + " " + tb;
     return keyA.localeCompare(keyB);
   });
   rows.forEach(function (r) { table.appendChild(r); });
@@ -440,17 +442,12 @@ setInterval(function () {
       countdownCell.innerText = "--:--:--";
       return;
     }
-    const iso = parseDateITToISO(dateInput.value);
-    if (!iso) {
-      countdownCell.innerText = "--:--:--";
-      return;
-    }
     var parts = timeInput.value.split(":");
     if (parts.length < 2) {
       countdownCell.innerText = "--:--:--";
       return;
     }
-    var eventTime = new Date(iso + "T" + timeInput.value + ":00");
+    var eventTime = new Date(dateInput.value + "T" + timeInput.value + ":00");
     var diffSec = Math.floor((eventTime - now) / 1000);
 
     if (diffSec > 0 && diffSec < nextDiff) {
@@ -490,7 +487,8 @@ setInterval(function () {
 
   if (nextRow) {
     nextRow.classList.add("next");
-    const d = nextRow.querySelector(".date").value || "--/--/----";
+    const isoDate = nextRow.querySelector(".date").value || "";
+    const d = isoDate ? formatDateITFromISO(isoDate) : "--/--/----";
     const t = nextRow.querySelector(".time").value || "--:--";
     document.getElementById("nextStart").innerText =
       "Prossima partenza: " + d + " " + t;
