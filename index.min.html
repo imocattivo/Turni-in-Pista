@@ -1,0 +1,433 @@
+<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Turni in Pista</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="manifest" href="manifest.json"><style>body{font-family:Arial,sans-serif;background:#111;color:#fff;padding:20px;margin:0;}#currentTime{text-align:center;font-size:40px;margin-bottom:5px;color:#0f0;font-weight:bold;}h1{text-align:center;margin-bottom:0;font-size:32px;}#raceNameDisplay{text-align:center;font-size:22px;margin-bottom:15px;color:#ffcc00;}#nextStart{text-align:center;font-size:26px;margin-bottom:20px;color:#ff0;}#menuBtn{position:fixed;top:10px;left:10px;background:#000;color:#ffcc00;padding:8px 14px;font-size:18px;border:2px solid #ffcc00;border-radius:8px;font-weight:bold;cursor:pointer;z-index:10001;}#versionInfo{position:fixed;top:10px;right:10px;color:#888;font-size:14px;z-index:9999;}table{width:100%;border-collapse:collapse;margin-top:10px;}th,td{padding:8px;border-bottom:1px solid #444;text-align:center;}input[type="time"],input[type="text"],input[type="date"]{width:95%;padding:4px;}select{width:70px;padding:4px;}button{padding:10px 15px;margin:5px;font-size:16px;cursor:pointer;}.alert{background:red;color:yellow;font-size:32px;padding:20px;text-align:center;display:none;animation:blink 1s infinite;}@keyframes blink{50%{opacity:0.3;}}.next{outline:3px solid yellow;}#superBtn,#fullscreenBtn{position:fixed;bottom:20px;padding:12px 18px;font-size:18px;border:none;border-radius:8px;opacity:0.85;}#superBtn{left:50%;transform:translateX(-50%);background:#ffcc00;color:black;font-weight:bold;}#fullscreenBtn{right:20px;background:#007bff;color:white;}.supervis{background:#ffffff !important;color:#000 !important;}.supervis #currentTime{color:#000 !important;font-size:48px !important;}.supervis h1{color:#000 !important;font-size:40px !important;}.supervis #raceNameDisplay{color:#cc0000 !important;font-size:26px !important;}.supervis #nextStart{color:#ff9900 !important;font-size:32px !important;font-weight:bold;}.supervis table th,.supervis table td{border-bottom:3px solid #000 !important;}.supervis .countdown{font-size:32px !important;font-weight:bold;}.supervis button{font-size:20px !important;padding:14px 20px !important;}.supervis .alert{background:#ff0000 !important;color:#ffff00 !important;font-size:40px !important;}#setupOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:10000;}#setupModal{background:#222;border-radius:10px;padding:20px;width:420px;max-width:95%;box-shadow:0 0 15px #000;}#setupModal h2{margin-top:0;text-align:center;}.setup-section{margin-bottom:15px;}.setup-section label{display:block;margin-bottom:5px;}.group-row{display:flex;align-items:center;margin-bottom:5px;}.group-row input[type="text"]{flex:1;padding:4px;margin-right:5px;}.group-row button{padding:4px 8px;font-size:14px;margin:0;}#addGroupBtn{width:100%;background:#444;color:#fff;border:none;padding:6px;cursor:pointer;border-radius:5px;margin-top:5px;}.setup-grid{display:grid;grid-template-columns:1.2fr 0.8fr 1.2fr;gap:5px;align-items:center;font-size:14px;}.setup-grid input[type="number"],.setup-grid input[type="date"]{width:100%;padding:3px;}#generateBtn{width:100%;background:#ffcc00;color:#000;border:none;padding:10px;font-size:16px;font-weight:bold;border-radius:6px;cursor:pointer;margin-top:10px;}#sideMenuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;z-index:10000;}#sideMenu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#000;color:#fff;box-shadow:4px 0 10px rgba(0,0,0,0.7);padding-top:15px;transition:left 0.25s ease-out;z-index:10001;}#sideMenuHeader{padding:10px 15px;border-bottom:1px solid #333;font-weight:bold;color:#ffcc00;font-size:18px;}.menuItem{padding:10px 15px;border-bottom:1px solid #222;cursor:pointer;font-size:16px;}.menuItem span.icon{margin-right:8px;color:#ffcc00;}.menuItem:hover{background:#222;}.menuSectionTitle{padding:8px 15px 4px;font-size:13px;text-transform:uppercase;color:#aaa;}</style></head><body><button id="menuBtn">☰ Menu</button><div id="versionInfo"></div><div id="sideMenuOverlay"></div><div id="sideMenu"><div id="sideMenuHeader">Menu</div><div class="menuItem" id="menuNewRace"><span class="icon">🏁</span>Configura nuova gara</div><div class="menuItem" id="menuSaveRace"><span class="icon">💾</span>Salva gara</div><div class="menuItem" id="menuOpenRace"><span class="icon">📂</span>Apri gara</div><div class="menuSectionTitle">Schermo</div><div class="menuItem" id="menuSuperVis"><span class="icon">🔍</span>SuperVis</div><div class="menuItem" id="menuStayAlive"><span class="icon">📱</span>Mantieni Attivo</div><div class="menuItem" id="menuFullscreen"><span class="icon">⛶</span>Fullscreen</div><div class="menuSectionTitle">Info</div><div class="menuItem" id="menuInfo"><span class="icon">ℹ️</span>Informazioni</div></div><audio id="alarmSound"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio><div id="currentTime"></div><h1>Turni in Pista</h1><div id="raceNameDisplay"></div><div id="nextStart">Prossima partenza: --:--</div><div class="alert" id="alertBox"></div><table id="table"><tr><th>Data</th><th>Orario (HH:MM)</th><th style="width:35%">Descrizione</th><th>Avviso</th><th>Countdown</th><th>Duplica</th><th>Elimina</th></tr></table><button id="addBtn">Aggiungi Partenza</button><button id="superBtn">SuperVis</button><button id="fullscreenBtn">Fullscreen</button><input type="file" id="openFileInput" accept=".json" style="display:none"><div id="setupOverlay"><div id="setupModal"><h2>Setup Gara</h2><div class="setup-section"><label>Nome della gara:</label><input type="text" id="raceNameInput" placeholder="Es. Trofeo Primavera" style="width:100%;padding:4px;"></div><div class="setup-section"><label>Gruppi:</label><div id="groupsContainer"></div><button id="addGroupBtn">+ Aggiungi gruppo</button></div><div class="setup-section"><label>Struttura manche:</label><div class="setup-grid"><div></div><div>Numero</div><div>Data</div><div>Prove</div><div><input type="number" id="numProve" min="0" value="1"></div><div><input type="date" id="dateProve"></div><div>Controllate</div><div><input type="number" id="numControllate" min="0" value="1"></div><div><input type="date" id="dateControllate"></div><div>Qualifiche</div><div><input type="number" id="numQualifiche" min="0" value="4"></div><div><input type="date" id="dateQualifiche"></div><div>Finali</div><div><input type="number" id="numFinali" min="0" value="3"></div><div><input type="date" id="dateFinali"></div></div></div><button id="generateBtn">Genera Programma</button></div></div><script>const PROGRAM_VERSION = "v0.90 – 08/05/2026";
+document.getElementById("versionInfo").innerText = PROGRAM_VERSION;
+if ("serviceWorker" in navigator) {
+ window.addEventListener("load", () => {
+ navigator.serviceWorker.register("service-worker.js").catch(()=>{});
+ });
+}
+let wakeLock = null;
+async function enableWakeLock() {
+ try {
+ if ("wakeLock" in navigator) {
+ wakeLock = await navigator.wakeLock.request("screen");
+ wakeLock.addEventListener("release", enableWakeLock);
+ }
+ } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => {
+ if (document.visibilityState === "visible") enableWakeLock();
+});
+enableWakeLock();
+setTimeout(() => {
+ if (!document.fullscreenElement)
+ document.documentElement.requestFullscreen().catch(()=>{});
+}, 1500);
+setInterval(() => { window.dispatchEvent(new Event("touchstart")); }, 50000);
+setInterval(function () {
+ var now = new Date();
+ document.getElementById("currentTime").innerText =
+ now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}, 1000);
+document.getElementById("fullscreenBtn").onclick = function () {
+ if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+ else document.exitFullscreen();
+};
+document.getElementById("superBtn").onclick = function () {
+ document.body.classList.toggle("supervis");
+};
+function createAlertSelect(value) {
+ if (!value) value = "7";
+ var html = '<select class="alertBefore" onchange="saveData()">';
+ for (var i = 0; i <= 30; i++) {
+ html += '<option value="' + i + '"' + (i == value ? ' selected' : '') + '>' + i + '</option>';
+ }
+ html += '</select>';
+ return html;
+}
+function formatDateITFromISO(iso) {
+ if (!iso) return "";
+ const [y,m,d] = iso.split("-");
+ if (!y || !m || !d) return "";
+ return d + "/" + m + "/" + y;
+}
+function parseDateITToISO(it) {
+ if (!it) return "";
+ const parts = it.split("/");
+ if (parts.length !== 3) return "";
+ const [d,m,y] = parts;
+ return y + "-" + m.padStart(2,"0") + "-" + d.padStart(2,"0");
+}
+function addRow(dateStr, time, desc, alertBefore) {
+ if (!dateStr) dateStr = "";
+ if (!time) time = "";
+ if (!desc) desc = "";
+ if (!alertBefore) alertBefore = "7";
+ 
+ if (dateStr && dateStr.includes("/")) {
+ dateStr = parseDateITToISO(dateStr);
+ }
+ var table = document.getElementById("table");
+ var row = table.insertRow(-1);
+ row.innerHTML =
+ '<td><input type="date" class="date" value="' + dateStr + '" oninput="saveData()"></td>' +
+ '<td><input type="time" class="time" value="' + time + '" oninput="saveData()"></td>' +
+ '<td><input type="text" class="desc" value="' + desc + '" oninput="saveData()"></td>' +
+ '<td>' + createAlertSelect(alertBefore) + '</td>' +
+ '<td class="countdown">--:--:--</td>' +
+ '<td><button onclick="duplicateRow(this)">⧉</button></td>' +
+ '<td><button onclick="this.parentNode.parentNode.remove(); saveData()">X</button></td>';
+}
+function duplicateRow(btn) {
+ var row = btn.parentNode.parentNode;
+ addRow(
+ row.querySelector(".date").value,
+ row.querySelector(".time").value,
+ row.querySelector(".desc").value,
+ row.querySelector(".alertBefore").value
+ );
+ saveData();
+}
+function saveData() {
+ var rows = [];
+ var trs = document.querySelectorAll("#table tr");
+ trs.forEach(function (row, index) {
+ if (index === 0) return;
+ rows.push({
+ date: row.querySelector(".date").value, 
+ time: row.querySelector(".time").value,
+ desc: row.querySelector(".desc").value,
+ alertBefore: row.querySelector(".alertBefore").value
+ });
+ });
+ localStorage.setItem("gareData", JSON.stringify(rows));
+ sortRows();
+}
+function loadData() {
+ var data = JSON.parse(localStorage.getItem("gareData") || "[]");
+ data.forEach(function (item) {
+ addRow(item.date, item.time, item.desc, item.alertBefore);
+ });
+ sortRows();
+}
+function sortRows() {
+ var table = document.getElementById("table");
+ var rows = Array.from(table.rows).slice(1);
+ rows.sort(function (a, b) {
+ const da = a.querySelector(".date").value || "9999-12-31";
+ const db = b.querySelector(".date").value || "9999-12-31";
+ const ta = a.querySelector(".time").value || "99:99";
+ const tb = b.querySelector(".time").value || "99:99";
+ const keyA = da + " " + ta;
+ const keyB = db + " " + tb;
+ return keyA.localeCompare(keyB);
+ });
+ rows.forEach(function (r) { table.appendChild(r); });
+}
+let alertEventTime = null;
+function showAlert(countdownText) {
+ const box = document.getElementById("alertBox");
+ box.innerHTML = "Partenza tra:<br><span id='alertCountdown'>" + countdownText + "</span>";
+ box.style.display = "block";
+}
+function hideAlert() {
+ document.getElementById("alertBox").style.display = "none";
+ alertEventTime = null;
+}
+setInterval(function () {
+ var rows = document.querySelectorAll("#table tr");
+ var now = new Date();
+ var nextRow = null;
+ var nextDiff = Infinity;
+ rows.forEach(function (row, index) {
+ if (index === 0) return;
+ row.classList.remove("next");
+ var dateInput = row.querySelector(".date");
+ var timeInput = row.querySelector(".time");
+ var alertBefore = row.querySelector(".alertBefore");
+ var countdownCell = row.querySelector(".countdown");
+ if (!dateInput.value || !timeInput.value) {
+ countdownCell.innerText = "--:--:--";
+ return;
+ }
+ var parts = timeInput.value.split(":");
+ if (parts.length < 2) {
+ countdownCell.innerText = "--:--:--";
+ return;
+ }
+ var eventTime = new Date(dateInput.value + "T" + timeInput.value + ":00");
+ var diffSec = Math.floor((eventTime - now) / 1000);
+ if (diffSec > 0 && diffSec < nextDiff) {
+ nextDiff = diffSec;
+ nextRow = row;
+ }
+ if (diffSec < 0) {
+ countdownCell.innerText = "Partito";
+ return;
+ }
+ var hh = String(Math.floor(diffSec / 3600)).padStart(2, "0");
+ var mm = String(Math.floor((diffSec % 3600) / 60)).padStart(2, "0");
+ var ss = String(diffSec % 60).padStart(2, "0");
+ countdownCell.innerText = hh + ":" + mm + ":" + ss;
+ var alertTime = parseInt(alertBefore.value) * 60;
+ if (diffSec === alertTime) {
+ alertEventTime = eventTime;
+ showAlert(hh + ":" + mm + ":" + ss);
+ document.getElementById("alarmSound").play();
+ }
+ });
+ if (alertEventTime) {
+ var now2 = new Date();
+ var diffAlert = Math.floor((alertEventTime - now2) / 1000);
+ if (diffAlert <= 0) {
+ hideAlert();
+ } else {
+ var ah = String(Math.floor(diffAlert / 3600)).padStart(2, "0");
+ var am = String(Math.floor((diffAlert % 3600) / 60)).padStart(2, "0");
+ var as = String(diffAlert % 60).padStart(2, "0");
+ const alertCd = document.getElementById("alertCountdown");
+ if (alertCd) alertCd.innerText = ah + ":" + am + ":" + as;
+ }
+ }
+ if (nextRow) {
+ nextRow.classList.add("next");
+ const isoDate = nextRow.querySelector(".date").value || "";
+ const d = isoDate ? formatDateITFromISO(isoDate) : "--/--/----";
+ const t = nextRow.querySelector(".time").value || "--:--";
+ document.getElementById("nextStart").innerText =
+ "Prossima partenza: " + d + " " + t;
+ } else {
+ document.getElementById("nextStart").innerText = "Prossima partenza: --:--";
+ }
+}, 1000);
+function clearTable() {
+ const table = document.getElementById("table");
+ while (table.rows.length > 1) {
+ table.deleteRow(1);
+ }
+}
+const groupsContainer = document.getElementById("groupsContainer");
+document.getElementById("addGroupBtn").onclick = function () {
+ addGroupRow("");
+};
+function addGroupRow(name) {
+ const div = document.createElement("div");
+ div.className = "group-row";
+ div.innerHTML =
+ '<input type="text" class="groupName" placeholder="Nome gruppo" value="' + (name || "") + '">' +
+ '<button type="button">X</button>';
+ div.querySelector("button").onclick = function () {
+ div.remove();
+ };
+ groupsContainer.appendChild(div);
+}
+function openSetupModal() {
+ document.getElementById("setupOverlay").style.display = "flex";
+}
+function closeSetupModal() {
+ document.getElementById("setupOverlay").style.display = "none";
+}
+document.getElementById("generateBtn").onclick = function () {
+ const raceName = document.getElementById("raceNameInput").value.trim();
+ const groupInputs = document.querySelectorAll(".groupName");
+ const groups = [];
+ groupInputs.forEach(g => {
+ const v = g.value.trim();
+ if (v) groups.push(v);
+ });
+ if (groups.length === 0) {
+ alert("Inserisci almeno un gruppo.");
+ return;
+ }
+ const numProve = parseInt(document.getElementById("numProve").value || "0", 10);
+ const numControllate = parseInt(document.getElementById("numControllate").value || "0", 10);
+ const numQualifiche = parseInt(document.getElementById("numQualifiche").value || "0", 10);
+ const numFinali = parseInt(document.getElementById("numFinali").value || "0", 10);
+ const dateProve = document.getElementById("dateProve").value;
+ const dateControllate = document.getElementById("dateControllate").value;
+ const dateQualifiche = document.getElementById("dateQualifiche").value;
+ const dateFinali = document.getElementById("dateFinali").value;
+ clearTable();
+ for (let i = 1; i <= numProve; i++) {
+ groups.forEach(g => {
+ const dIT = formatDateITFromISO(dateProve);
+ const desc = g + " – P" + i;
+ addRow(dIT, "", desc, "7");
+ });
+ }
+ for (let i = 1; i <= numControllate; i++) {
+ groups.forEach(g => {
+ const dIT = formatDateITFromISO(dateControllate);
+ const desc = g + " – C" + i;
+ addRow(dIT, "", desc, "7");
+ });
+ }
+ for (let i = 1; i <= numQualifiche; i++) {
+ groups.forEach(g => {
+ const dIT = formatDateITFromISO(dateQualifiche);
+ const desc = g + " – Q" + i;
+ addRow(dIT, "", desc, "7");
+ });
+ }
+ for (let i = 1; i <= numFinali; i++) {
+ groups.forEach(g => {
+ const dIT = formatDateITFromISO(dateFinali);
+ const desc = g + " – F" + i;
+ addRow(dIT, "", desc, "7");
+ });
+ }
+ sortRows();
+ saveData();
+ const raceConfig = {
+ version: PROGRAM_VERSION,
+ raceName,
+ groups,
+ numProve,
+ numControllate,
+ numQualifiche,
+ numFinali,
+ dateProve,
+ dateControllate,
+ dateQualifiche,
+ dateFinali
+ };
+ localStorage.setItem("raceConfig", JSON.stringify(raceConfig));
+ document.getElementById("raceNameDisplay").innerText = raceName || "";
+ closeSetupModal();
+};
+(function init() {
+ const cfgStr = localStorage.getItem("raceConfig");
+ if (!cfgStr) {
+ addGroupRow("");
+ const todayISO = new Date().toISOString().slice(0,10);
+ document.getElementById("dateProve").value = todayISO;
+ document.getElementById("dateControllate").value = todayISO;
+ document.getElementById("dateQualifiche").value = todayISO;
+ document.getElementById("dateFinali").value = todayISO;
+ openSetupModal();
+ } else {
+ const cfg = JSON.parse(cfgStr);
+ groupsContainer.innerHTML = "";
+ (cfg.groups || []).forEach(g => addGroupRow(g));
+ document.getElementById("numProve").value = cfg.numProve || 0;
+ document.getElementById("numControllate").value = cfg.numControllate || 0;
+ document.getElementById("numQualifiche").value = cfg.numQualifiche || 0;
+ document.getElementById("numFinali").value = cfg.numFinali || 0;
+ document.getElementById("dateProve").value = cfg.dateProve || "";
+ document.getElementById("dateControllate").value = cfg.dateControllate || "";
+ document.getElementById("dateQualifiche").value = cfg.dateQualifiche || "";
+ document.getElementById("dateFinali").value = cfg.dateFinali || "";
+ document.getElementById("raceNameInput").value = cfg.raceName || "";
+ document.getElementById("raceNameDisplay").innerText = cfg.raceName || "";
+ loadData();
+ }
+})();
+document.getElementById("addBtn").onclick = function () {
+ addRow("", "", "", "7");
+ saveData();
+};
+const sideMenu = document.getElementById("sideMenu");
+const sideMenuOverlay = document.getElementById("sideMenuOverlay");
+document.getElementById("menuBtn").onclick = function () {
+ sideMenu.style.left = "0";
+ sideMenuOverlay.style.display = "block";
+};
+function closeMenu() {
+ sideMenu.style.left = "-260px";
+ sideMenuOverlay.style.display = "none";
+}
+sideMenuOverlay.onclick = closeMenu;
+document.getElementById("menuNewRace").onclick = function () {
+ closeMenu();
+ if (!confirm("⚠️ ATTENZIONE!\n\nQuesta operazione cancellerà COMPLETAMENTE la gara attuale.\nSe vuoi conservarla, usa prima 'Salva gara'.\n\nProcedere?")) return;
+ localStorage.removeItem("raceConfig");
+ localStorage.removeItem("gareData");
+ document.getElementById("raceNameDisplay").innerText = "";
+ clearTable();
+ const todayISO = new Date().toISOString().slice(0,10);
+ document.getElementById("dateProve").value = todayISO;
+ document.getElementById("dateControllate").value = todayISO;
+ document.getElementById("dateQualifiche").value = todayISO;
+ document.getElementById("dateFinali").value = todayISO;
+ groupsContainer.innerHTML = "";
+ addGroupRow("");
+ document.getElementById("raceNameInput").value = "";
+ openSetupModal();
+};
+document.getElementById("menuSaveRace").onclick = function () {
+ closeMenu();
+ const cfgStr = localStorage.getItem("raceConfig") || "{}";
+ const cfg = JSON.parse(cfgStr);
+ const gareData = JSON.parse(localStorage.getItem("gareData") || "[]");
+ const now = new Date();
+ const backup = {
+ programVersion: PROGRAM_VERSION,
+ backupDateTime: now.toISOString(),
+ raceName: cfg.raceName || "",
+ config: cfg,
+ gareData: gareData
+ };
+ const raceNameSafe = (cfg.raceName || "Gara").replace(/[^a-z0-9]+/gi, "_");
+ const fileName = raceNameSafe + "_" + now.toISOString().slice(0,10) + ".json";
+ const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+ const a = document.createElement("a");
+ a.href = URL.createObjectURL(blob);
+ a.download = fileName;
+ a.click();
+};
+document.getElementById("menuOpenRace").onclick = function () {
+ closeMenu();
+ document.getElementById("openFileInput").click();
+};
+document.getElementById("openFileInput").addEventListener("change", function (e) {
+ const file = e.target.files[0];
+ if (!file) return;
+ const reader = new FileReader();
+ reader.onload = function (ev) {
+ try {
+ const data = JSON.parse(ev.target.result);
+ if (!data || !data.config || !Array.isArray(data.gareData)) {
+ alert("File non valido.");
+ return;
+ }
+ localStorage.setItem("raceConfig", JSON.stringify(data.config));
+ localStorage.setItem("gareData", JSON.stringify(data.gareData));
+ const cfg = data.config;
+ groupsContainer.innerHTML = "";
+ (cfg.groups || []).forEach(g => addGroupRow(g));
+ document.getElementById("numProve").value = cfg.numProve || 0;
+ document.getElementById("numControllate").value = cfg.numControllate || 0;
+ document.getElementById("numQualifiche").value = cfg.numQualifiche || 0;
+ document.getElementById("numFinali").value = cfg.numFinali || 0;
+ document.getElementById("dateProve").value = cfg.dateProve || "";
+ document.getElementById("dateControllate").value = cfg.dateControllate || "";
+ document.getElementById("dateQualifiche").value = cfg.dateQualifiche || "";
+ document.getElementById("dateFinali").value = cfg.dateFinali || "";
+ document.getElementById("raceNameInput").value = cfg.raceName || "";
+ document.getElementById("raceNameDisplay").innerText = cfg.raceName || "";
+ clearTable();
+ data.gareData.forEach(item => addRow(item.date, item.time, item.desc, item.alertBefore));
+ sortRows();
+ alert("Gara caricata correttamente.");
+ } catch (err) {
+ alert("Errore nel leggere il file.");
+ }
+ };
+ reader.readAsText(file);
+ e.target.value = "";
+});
+document.getElementById("menuSuperVis").onclick = function () {
+ closeMenu();
+ document.body.classList.toggle("supervis");
+};
+document.getElementById("menuStayAlive").onclick = function () {
+ closeMenu();
+ alert("Per mantenere lo schermo sempre acceso:\n\n1️⃣ Apri l'app Stay Alive!\n2️⃣ Attiva 'Keep Screen Awake'\n3️⃣ Imposta 'Always On'");
+};
+document.getElementById("menuFullscreen").onclick = function () {
+ closeMenu();
+ document.getElementById("fullscreenBtn").click();
+};
+document.getElementById("menuInfo").onclick = function () {
+ closeMenu();
+ alert("Turni in Pista\nVersione: " + PROGRAM_VERSION + "\n\nGestione gare multi-giorno con backup completo e PWA.");
+};</script></body></html>
