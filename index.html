@@ -294,9 +294,22 @@ document.addEventListener("visibilitychange", () => {
 enableWakeLock();
 
 setTimeout(() => {
-  if (!document.fullscreenElement)
-    document.documentElement.requestFullscreen().catch(()=>{});
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
+    }).catch(()=>{});
+  }
 }, 1500);
+
+document.addEventListener("fullscreenchange", () => {
+  if (document.fullscreenElement) {
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
+  }
+});
 
 setInterval(() => { window.dispatchEvent(new Event("touchstart")); }, 50000);
 
@@ -307,8 +320,13 @@ setInterval(function () {
 }, 1000);
 
 document.getElementById("fullscreenBtn").onclick = function () {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-  else document.exitFullscreen();
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+    }).catch(()=>{});
+  } else {
+    document.exitFullscreen();
+  }
 };
 
 document.getElementById("superBtn").onclick = function () {
