@@ -1,4 +1,4 @@
-const CACHE_NAME = "turni-in-pista-cache-v1";
+const CACHE_NAME = "turni-in-pista-cache-v2";
 
 const FILES_TO_CACHE = [
   "./",
